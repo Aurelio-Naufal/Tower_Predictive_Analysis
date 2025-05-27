@@ -10,9 +10,12 @@ from datetime import timedelta
 
 st.title("Monthly Trouble Ticket Dashboard with Forecasting")
 
+def read_excel_files(uploaded_files):
+    return [file.read() for file in uploaded_files]
+
 @st.cache_data(show_spinner=True)
-def load_data(uploaded_files):
-    df_list = [pd.read_excel(file) for file in uploaded_files]
+def parse_excels(file_bytes_list):
+    df_list = [pd.read_excel(io) for io in file_bytes_list]
     df = pd.concat(df_list, ignore_index=True)
     df.columns = df.columns.str.replace(' ', '', regex=False)
     return df
@@ -20,8 +23,9 @@ def load_data(uploaded_files):
 uploaded_files = st.file_uploader("Upload Excel Files", type=['xls', 'xlsx'], accept_multiple_files=True)
 
 if uploaded_files:
-    df = load_data(uploaded_files)
-
+    file_bytes_list = read_excel_files(uploaded_files)
+    df = parse_excels(file_bytes_list)
+    
     # Select date column
     date_column = st.selectbox("Select the date column:", df.columns)
     df[date_column] = pd.to_datetime(df[date_column], errors='coerce')
