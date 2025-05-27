@@ -8,5 +8,6 @@ catboost==1.2.8
 lightgbm==4.6.0
 openpyxl==3.1.5
 xlrd==2.0.1
+plotly
 altair
 seaborn
