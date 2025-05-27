@@ -105,6 +105,8 @@ if df is not None:
                 df_filtered = df_filtered[df_filtered[case_type_col].isin(selected_types)]
             if selected_regions:
                 df_filtered = df_filtered[df_filtered[region_col].isin(selected_regions)]
+            if selected_operators:
+                df_filtered = df_filtered[df_filtered[operator_col].isin(selected_operators)]
 
             # Add year and month for visualization
             df_filtered['Year'] = df_filtered[date_column].dt.year
