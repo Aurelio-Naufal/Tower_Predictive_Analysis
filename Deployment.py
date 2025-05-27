@@ -63,7 +63,7 @@ if df is not None:
     df = df.dropna(subset=[date_column])
 
     # Optional CaseTypeName filter
-    case_type_col = st.selectbox("Select the CaseTypeName column (or skip):", options=['None'] + list(df.columns))
+    case_type_col = st.selectbox("Select the Case Type column (or skip):", options=['None'] + list(df.columns))
     if case_type_col != 'None':
         selected_types = st.multiselect(
             f"Filter by values in {case_type_col}:",
@@ -74,7 +74,7 @@ if df is not None:
         selected_types = None
 
     # Optional RegionName filter
-    region_col = st.selectbox("Select the RegionName column (or skip):", options=['None'] + list(df.columns))
+    region_col = st.selectbox("Select the Region/Province column (or skip):", options=['None'] + list(df.columns))
     if region_col != 'None':
         selected_regions = st.multiselect(
             f"Filter by values in {region_col}:",
@@ -83,7 +83,17 @@ if df is not None:
         )
     else:
         selected_regions = None
-
+    #Operator Column
+    operator_col = st.selectbox("Select the Operator/Operator Group column (or skip):", options=['None'] + list(df.columns))
+    if operator_col != 'None':
+        selected_operators = st.multiselect(
+            f"Filter by values in {operator_col}:",
+            options=df[operator_col].dropna().unique(),
+            default=df[operator_col].dropna().unique()
+        )
+    else:
+        selected_operators = None
+    
     # Model selection
     model_choice = st.selectbox("Choose forecasting model:", ['XGBoost', 'CatBoost', 'LightGBM'])
 
