@@ -9,6 +9,9 @@ import lightgbm as lgb
 from datetime import timedelta
 from io import BytesIO, StringIO
 
+# Set page config at the top (optional)
+st.set_page_config(page_title="Monthly Trouble Ticket Dashboard with Forecasting")
+
 st.title("Monthly Trouble Ticket Dashboard with Forecasting")
 
 @st.cache_data(show_spinner=True)
@@ -17,11 +20,9 @@ def load_data(files):
     for file in files:
         file_ext = file.name.split('.')[-1].lower()
         if file_ext in ['xls', 'xlsx']:
-            # Wrap bytes in BytesIO
             bytes_data = BytesIO(file.read())
             df_temp = pd.read_excel(bytes_data)
         elif file_ext == 'csv':
-            # For CSV, use StringIO with decoded string
             string_data = StringIO(file.read().decode('utf-8'))
             df_temp = pd.read_csv(string_data)
         else:
@@ -31,25 +32,29 @@ def load_data(files):
     df.columns = df.columns.str.replace(' ', '', regex=False)
     return df
 
+# Upload files
 uploaded_files = st.file_uploader(
     "Upload Excel or CSV Files", 
     type=['xls', 'xlsx', 'csv'], 
     accept_multiple_files=True
 )
 
-df = None
+# Initialize session_state 'df' if not existing
+if 'df' not in st.session_state:
+    st.session_state['df'] = None
 
+# Load & process button
 if uploaded_files:
     if st.button("Load & Process Data"):
         try:
-            df = load_data(uploaded_files)
+            df_loaded = load_data(uploaded_files)
+            st.session_state['df'] = df_loaded  # Save to session_state
             st.success("Data loaded successfully!")
         except Exception as e:
             st.error(f"Failed to load data: {e}")
 
-    from io import BytesIO, StringIO  # add this import at the top
-
-# Move set_page_config to very top of file, before st.title()
+# Use dataframe from session_state
+df = st.session_state['df']
 
 if df is not None:
     # Select date column
@@ -103,8 +108,7 @@ if df is not None:
             monthly = monthly[present_months]
 
             monthly_long = monthly.T.reset_index().melt(id_vars='Month', var_name='Year', value_name='Count')
-            # Note: 'Month' comes from reset_index() column; after melt, columns are Month, Year, Count
-            monthly_long.rename(columns={'index': 'Month'}, inplace=True)
+            # Note: after melt, columns are Month, Year, Count
 
             st.subheader("Monthly Trouble Tickets per Year")
             fig = px.line(
@@ -182,3 +186,6 @@ if df is not None:
 
         except Exception as e:
             st.error(f"Error: {e}")
+
+else:
+    st.info("Please upload data and click 'Load & Process Data' to begin.")
