@@ -8,13 +8,11 @@ from catboost import CatBoostRegressor
 import lightgbm as lgb
 from datetime import timedelta
 from io import BytesIO
-
-st.title("Monthly Trouble Ticket Dashboard with Forecasting")
-
 st.set_page_config(page_title="Trouble Ticket Dashboard")
 st.experimental_set_query_params()  # just a placeholder to avoid re-run issues
-
 st._MAX_UPLOAD_SIZE_MB = 1024 
+
+st.title("Monthly Trouble Ticket Dashboard with Forecasting")
 
 @st.cache_data(show_spinner=True)
 def load_data(files):
