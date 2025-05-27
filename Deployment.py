@@ -7,15 +7,17 @@ from xgboost import XGBRegressor
 from catboost import CatBoostRegressor
 import lightgbm as lgb
 from datetime import timedelta
+from io import BytesIO
 
 st.title("Monthly Trouble Ticket Dashboard with Forecasting")
+
 
 def read_excel_files(uploaded_files):
     return [file.read() for file in uploaded_files]
 
 @st.cache_data(show_spinner=True)
 def parse_excels(file_bytes_list):
-    df_list = [pd.read_excel(io) for io in file_bytes_list]
+    df_list = [pd.read_excel(BytesIO(b)) for b in file_bytes_list]
     df = pd.concat(df_list, ignore_index=True)
     df.columns = df.columns.str.replace(' ', '', regex=False)
     return df
@@ -24,7 +26,13 @@ uploaded_files = st.file_uploader("Upload Excel Files", type=['xls', 'xlsx'], ac
 
 if uploaded_files:
     file_bytes_list = read_excel_files(uploaded_files)
-    df = parse_excels(file_bytes_list)
+
+    if st.button("Load & Process Data"):
+        try:
+            df = parse_excels(file_bytes_list)
+            st.success("Data loaded successfully!")
+        except Exception as e:
+            st.error(f"Failed to load data: {e}")
     
     # Select date column
     date_column = st.selectbox("Select the date column:", df.columns)
